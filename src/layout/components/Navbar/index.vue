@@ -1,10 +1,23 @@
 <template>
+<div>
+   <!-- 这是您页面的其他内容 -->
+    <el-dialog
+      title="系统公告"
+      :visible.sync="announcementVisible"
+      width="50%">
+      <p style="white-space: pre-wrap;">{{ announcement }}</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="announcementVisible = false">知道了</el-button>
+      </span>
+    </el-dialog>
+    <!-- end -->
   <div class="navbar">
     <div class="statusBox">
       <hamburger id="hamburger-container"
                  :is-active="sidebar.opened"
                  class="hamburger-container"
                  @toggleClick="toggleSideBar" />
+      <el-button type="text" @click="viewAnnouncement">查看公告</el-button>
     </div>
 
     <div :key="restKey"
@@ -76,6 +89,7 @@
               @handleclose="handlePwdClose" />
     <!-- end -->
   </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -88,7 +102,7 @@ import { getStatus, setStatus } from '@/api/users'
 import Cookies from 'js-cookie'
 import { debounce, throttle } from '@/utils/common'
 import { setNewData, getNewData } from '@/utils/cookies'
-
+import { getAnnouncement } from '@/api/announcement'
 // 接口
 import { getCountUnread } from '@/api/inform'
 // 修改密码弹层
@@ -118,6 +132,8 @@ export default class extends Vue {
   private setStatus = 1
   private dialogFormVisible = false
   private ountUnread = 0
+  private announcement = '' // 存放系统公告内容
+  private announcementVisible = false // 控制系统公告的显示与隐藏
   // get ountUnread() {
   //   return Number(getNewData())
   // }
@@ -143,6 +159,7 @@ export default class extends Vue {
     return JSON.parse(Cookies.get('user_info') as any).id
   }
   mounted() {
+     this.getAnnouncement()
     document.addEventListener('click', this.handleClose)
     //console.log(this.$store.state.app.statusNumber)
     // const msg = {
@@ -162,7 +179,22 @@ export default class extends Vue {
   destroyed() {
     this.websocket.close() //离开路由之后断开websocket连接
   }
-
+  getAnnouncement() {
+    getAnnouncement().then((res) => {
+      if (res.data.code === 1) {
+        this.announcement = res.data.data
+        this.announcementVisible = true // 获取到公告后显示模态窗
+      } else {
+        console.error('获取公告失败：', res.data.msg)
+      }
+    }).catch((error) => {
+      console.error('获取公告失败：', error)
+    })
+  }
+  // 点击按钮触发显示系统公告的模态窗
+  viewAnnouncement() {
+    this.announcementVisible = true
+  }
   // 添加新订单提示弹窗
   webSocket() {
     const that = this as any

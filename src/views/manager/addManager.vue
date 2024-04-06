@@ -9,10 +9,23 @@
                :inline="false"
                label-width="180px"
                class="demo-ruleForm">
-        <el-form-item label="姓名:"
+        <!--          <el-form-item label="商户职级" prop="region">-->
+        <!--            <el-select v-model="ruleForm.region" placeholder="请选择品牌名称">-->
+        <!--              <el-option label="区域一" value="shanghai"></el-option>-->
+        <!--              <el-option label="区域二" value="beijing"></el-option>-->
+        <!--            </el-select>-->
+        <!--            <el-button @click="submitForm('ruleForm')" type="primary" class="continue" style="margin-left: 10px;" >+新增职级</el-button>-->
+        <!--          </el-form-item>-->
+        <el-form-item label="账号:"
+                      prop="username">
+          <el-input v-model="ruleForm.username"
+                    placeholder="请输入账号"
+                    maxlength="20" />
+        </el-form-item>
+        <el-form-item label="商户名称:"
                       prop="name">
           <el-input v-model="ruleForm.name"
-                    placeholder="请输入姓名"
+                    placeholder="请输入商户名称"
                     maxlength="12" />
         </el-form-item>
         <el-form-item label="手机号:"
@@ -21,19 +34,6 @@
                     placeholder="请输入手机号"
                     maxlength="11" />
         </el-form-item>
-                <el-form-item label="年龄:"
-                      prop="phone">
-          <el-input v-model="ruleForm.age"
-                    placeholder="请输入年龄"
-                    maxlength="3" />
-        </el-form-item>
-        <el-form-item label="性别:"
-                      prop="sex">
-          <el-radio-group v-model="ruleForm.sex">
-            <el-radio label="男" />
-            <el-radio label="女" />
-          </el-radio-group>
-        </el-form-item>
         <el-form-item label="身份证号:"
                       prop="idNumber"
                       class="idNumber">
@@ -41,9 +41,25 @@
                     placeholder="请输入身份证号"
                     maxlength="20" />
         </el-form-item>
+                <el-form-item label="商户位置:"
+                      prop="address"
+                      class="address">
+          <el-input v-model="ruleForm.address"
+                    placeholder="请输入位置"
+                    maxlength="30" />
+        </el-form-item>
+         <div>
+          <el-form-item label="店铺头像:"
+                        prop="avatar">
+            <image-upload :prop-image-url="imageUrl"
+                          @imageChange="imageChange">
+              图片大小不超过2M<br>仅能上传 PNG JPEG JPG类型图片<br>建议上传200*200或300*300尺寸的图片
+            </image-upload>
+          </el-form-item>
+        </div>
         <div class="subBox address">
           <!-- <el-form-item> -->
-          <el-button @click="() => $router.push('/user')">
+          <el-button @click="() => $router.push('/manager')">
             取消
           </el-button>
           <el-button type="primary"
@@ -66,40 +82,36 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import HeadLable from '@/components/HeadLable/index.vue'
-import { queryUserById, addUser, editUser } from '@/api/users'
+import { queryManagerById, addManager, editManager } from '@/api/manager'
+import ImageUpload from '@/components/ImgUpload/index.vue'
 
 @Component({
   name: 'addShop',
   components: {
-    HeadLable
+    HeadLable,
+    ImageUpload
+
   }
 })
 export default class extends Vue {
-  private title = '添加学生'
+  private imageUrl: string = ''
+  private title = '添加商户'
   private actionType = ''
   private ruleForm = {
     name: '',
     phone: '',
-    sex: '',
+    address: '',
     idNumber: '',
+    username: '',
+    avatar: '',
   }
 
-  // private validateRepassword (rule:any, value:any, callback:any) {
-  //   if (value === '') {
-  //     callback(new Error('请再次输入密码'))
-  //   } else if (value !== this.ruleForm.password) {
-  //     callback(new Error('两次输入密码不一致!'))
-  //   } else {
-  //     callback()
-  //   }
-  // }
-
   private isCellPhone(val: any) {
-    if (!/^1(3|4|5|6|7|8)\d{9}$/.test(val)) {
-      return false
-    } else {
-      return true
-    }
+    // if (!/^1(3|4|5|6|7|8)\d{9}$/.test(val)) {
+    //   return false
+    // } else {
+       return true
+    // }
   }
 
   private checkphone(rule: any, value: any, callback: any) {
@@ -119,7 +131,8 @@ export default class extends Vue {
     let reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
     if (value == '') {
       callback(new Error('请输入身份证号码'))
-    } else if (reg.test(value)) {
+      //reg.test(value)
+    } else if (true) {
       callback()
     } else {
       callback(new Error('身份证号码不正确'))
@@ -131,10 +144,10 @@ export default class extends Vue {
       name: [
         {
           required: true,
-          // 'message': '请输入姓名',
+          // 'message': '请输入商户名称',
           validator: (rule: any, value: string, callback: Function) => {
             if (!value) {
-              callback(new Error('请输入姓名'))
+              callback(new Error('请输入商户名称'))
             } else {
               // const reg = /^[\u4e00-\u9fa5_a-zA-Z]{1,12}$/
               // if (!reg.test(value)) {
@@ -148,6 +161,25 @@ export default class extends Vue {
           trigger: 'blur'
         }
       ],
+      username: [
+        {
+          required: true,
+          // message: '请输入账号',
+          validator: (rule: any, value: string, callback: Function) => {
+            if (!value) {
+              callback(new Error('请输入账号'))
+            } else {
+              const reg = /^([a-z]|[0-9]){3,20}$/
+              if (!reg.test(value)) {
+                callback(new Error('账号输入不符，请输入3-20个字符'))
+              } else {
+                callback()
+              }
+            }
+          },
+          trigger: 'blur'
+        }
+      ],
       phone: [{ required: true, validator: this.checkphone, trigger: 'blur' }],
       idNumber: [{ required: true, validator: this.validID, trigger: 'blur' }]
     }
@@ -156,18 +188,19 @@ export default class extends Vue {
   created() {
     this.actionType = this.$route.query.id ? 'edit' : 'add'
     if (this.$route.query.id) {
-      this.title = '修改学生信息'
+      this.title = '修改商户信息'
       this.init()
     }
   }
 
   private async init() {
     const id = this.$route.query.id
-    queryUserById(id).then((res: any) => {
+    queryManagerById(id).then((res: any) => {
       // String(res.status) === '200'
       if (res.data.code === 1) {
         this.ruleForm = res.data.data
         // this.ruleForm.password = ''
+        this.imageUrl = res.data.data.avatar
       } else {
         this.$message.error(res.data.msg)
       }
@@ -189,18 +222,21 @@ export default class extends Vue {
           const params = {
             ...this.ruleForm,
           }
-          addUser(params)
+          addManager(params)
             .then((res: any) => {
               if (res.data.code === 1) {
-                this.$message.success('学生添加成功！')
+                this.$message.success('商户添加成功！')
                 if (!st) {
-                  this.$router.push({ path: '/user' })
+                  this.$router.push({ path: '/manager' })
                 } else {
+                  this.imageUrl = ''
                   this.ruleForm = {
+                    username: '',
                     name: '',
                     phone: '',
-                    sex: '男',
+                    address: '男',
                     idNumber: '',
+                    avatar:''
                   }
                 }
               } else {
@@ -214,11 +250,11 @@ export default class extends Vue {
           const params = {
             ...this.ruleForm,
           }
-          editUser(params)
+          editManager(params)
             .then((res: any) => {
               if (res.data.code === 1) {
-                this.$message.success('学生信息修改成功！')
-                this.$router.push({ path: '/user' })
+                this.$message.success('商户信息修改成功！')
+                this.$router.push({ path: '/manager' })
               } else {
                 this.$message.error(res.data.msg)
               }
@@ -231,6 +267,9 @@ export default class extends Vue {
         return false
       }
     })
+  }
+    imageChange(value: any) {
+    this.ruleForm.avatar = value
   }
 }
 </script>

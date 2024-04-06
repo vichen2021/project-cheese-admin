@@ -20,6 +20,7 @@
       @getOrderListBy3Status="getOrderListBy3Status"
     />
     <!-- end -->
+    <!-- 查看公告按钮 -->
   </div>
 </template>
 
@@ -70,6 +71,7 @@ export default class extends Vue {
   private orderStatics = {} as any
   created() {
     this.init()
+    
   }
   init() {
     this.$nextTick(() => {
@@ -113,8 +115,11 @@ export default class extends Vue {
         this.$message.error('请求出错了：' + err.message)
       })
   }
+
+
 }
 </script>
 
 <style lang="scss">
+/* 这里是您页面的样式 */
 </style>

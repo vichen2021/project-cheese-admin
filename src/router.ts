@@ -223,6 +223,35 @@ const router = new Router({
             hidden: role !== 'super_manager'
           }
         },
+        {
+          path: "/manager/add",
+          component: () =>
+            import(/* webpackChunkName: "dashboard" */ "@/views/manager/addManager.vue"),
+          meta: {
+            title: "添加管理员",
+            hidden: true
+          }
+        },
+        {
+          path: "announcement",
+          component: () =>
+            import(/* webpackChunkName: "shopTable" */ "@/views/announcement/index.vue"),
+          meta: {
+            title: "系统公告",
+            icon: "icon-order",
+            hidden: role === 'merchant'
+          }
+        },
+        {
+          path: "feedback",
+          component: () =>
+            import(/* webpackChunkName: "shopTable" */ "@/views/feedback/index.vue"),
+          meta: {
+            title: "处理学生反馈",
+            icon: "icon-category",
+            hidden: role === 'merchant'
+          }
+        },
       ]
     },
     {
