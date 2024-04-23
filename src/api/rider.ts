@@ -49,6 +49,14 @@ export const enableOrDisableRider = (params: any) => {
     params: { id:params.id }
   })
 };
+// 与配送员绑定接口
+export const bindRider = (params: any) => {
+  return request({
+    url: `/rider/bind/${params.isBound}`,
+    method: 'put',
+    params: { id:params.id }
+  })
+};
 
 // 修改页面反查详情接口
 export const queryRiderById = (id: string | (string | null)[]) => {

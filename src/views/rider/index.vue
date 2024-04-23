@@ -29,6 +29,7 @@
           @clear="init"
           @keyup.enter.native="initFun"
         />
+        <el-checkbox v-model="checked" style="margin-right: 5px; margin-left: 20px">只看本店</el-checkbox>
         <el-button class="normal-btn continue" @click="init(true)"
           >查询</el-button
         >
@@ -68,25 +69,42 @@
               type="text"
               size="small"
               class="blueBug"
-              :class="{ 'disabled-text': scope.row.ridername === 'admin' }"
-              :disabled="scope.row.ridername === 'admin'"
+              :class="{ 'disabled-text': merchantId < 101 }"
+              :disabled="merchantId < 101"
               @click="addRiderHandle(scope.row.id, scope.row.ridername)"
+              :style="{display:merchantId > 100 ?'none':''}"
             >
               修改
             </el-button>
             <el-button
-              :disabled="scope.row.ridername === 'admin'"
+              :disabled="merchantId < 101"
               type="text"
               size="small"
               class="non"
               :class="{
-                'disabled-text': scope.row.ridername === 'admin',
+                'disabled-text': merchantId < 100,
                 blueBug: scope.row.status == '0',
                 delBut: scope.row.status != '0',
               }"
               @click="statusHandle(scope.row)"
+              :style="{display:merchantId > 100 ?'none':''}"
             >
               {{ scope.row.status == '1' ? '禁用' : '启用' }}
+            </el-button>
+            <el-button
+              :disabled="merchantId < 101"
+              type="text"
+              size="small"
+              class="non"
+              :class="{
+                'disabled-text': merchantId < 101,
+                blueBug: scope.row.status == '0',
+                delBut: scope.row.status != '0',
+              }"
+              @click="bindRider(scope.row)"
+              :style="{display:merchantId < 101 ?'none':''}"
+            >
+              {{ scope.row.isBound == 0 ? '绑定' : '解绑' }}
             </el-button>
           </template>
         </el-table-column>
@@ -108,11 +126,11 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import HeadLable from '@/components/HeadLable/index.vue'
-import {getRiderPage,enableOrDisableRider} from '@/api/rider'
+import {getRiderPage,enableOrDisableRider,bindRider} from '@/api/rider'
 import { UserModule } from '@/store/modules/user'
 import InputAutoComplete from '@/components/InputAutoComplete/index.vue'
 import Empty from '@/components/Empty/index.vue'
-
+import Cookies from 'js-cookie'
 @Component({
   name: 'Rider',
   components: {
@@ -131,9 +149,19 @@ export default class extends Vue {
   private tableData = []
   private id = ''
   private status = ''
+  private isBound :number = 0
   private isSearch: boolean = false
+  private merchantId :number = 101
+  private checked:Boolean = true
 
   created() {
+    // 获取用户权限
+const userInfoCookie = Cookies.get('user_info');
+if (userInfoCookie) {
+  const userInfo = JSON.parse(userInfoCookie);
+  this.merchantId = userInfo.id;
+  console.log(this.merchantId)
+  }
     this.init()
   }
 
@@ -159,6 +187,7 @@ export default class extends Vue {
       name: this.input ? this.input : undefined,
       idnumber: this.idNumber || undefined,
       phone: this.phone || undefined,
+      isCurrent:this.checked ? 1 : 0 
     }
     await getRiderPage(params)
       .then((res: any) => {
@@ -211,7 +240,26 @@ export default class extends Vue {
         })
     })
   }
-
+  private bindRider(row: any) {
+    this.id = row.id
+    this.isBound = row.isBound
+    this.$confirm('确认调整与该配送员的绑定状态?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }).then(() => {
+      bindRider({ id: this.id, isBound:this.isBound == 1 ? 0 : 1 })
+        .then((res) => {
+          if (String(res.status) === '200') {
+            this.$message.success('账号状态更改成功！')
+            this.init()
+          }
+        })
+        .catch((err) => {
+          this.$message.error('请求出错了：' + err.message)
+        })
+    })
+  }
   private handleSizeChange(val: any) {
     this.pageSize = val
     this.init()

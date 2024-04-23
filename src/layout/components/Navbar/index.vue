@@ -17,7 +17,8 @@
                  :is-active="sidebar.opened"
                  class="hamburger-container"
                  @toggleClick="toggleSideBar" />
-      <el-button type="text" @click="viewAnnouncement">查看公告</el-button>
+      <el-button type="text" @click="viewAnnouncement"
+       style=" background-color: #ffc200; color:#ffffff; width:80px;">查看公告</el-button>
     </div>
 
     <div :key="restKey"

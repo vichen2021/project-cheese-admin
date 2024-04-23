@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <div class="login-box">
-      <img src="@/assets/login/login-l.png" alt="" />
+      <img src="@/assets/login/login-l.jpg" alt="" />
       <div class="login-form">
         <el-form ref="loginForm" :model="loginForm" :rules="loginRules">
           <div class="login-form-title">
@@ -100,7 +100,12 @@ export default class extends Vue {
         await UserModule.Login(this.loginForm as any)
           .then((res: any) => {
             if (String(res.code) === '1') {
-              this.$router.push('/')
+              if(res.data.id < 100){
+                this.$router.push('/statistics')
+              }else{
+                this.$router.push('/')
+              }
+              
             } else {
               // this.$message.error(res.msg)
               this.loading = false
@@ -115,29 +120,7 @@ export default class extends Vue {
       }
     })
   }
-    private handleLogin_sys() {
-    ;(this.$refs.loginForm as ElForm).validate(async (valid: boolean) => {
-      if (valid) {
-        this.loading = true
-        await UserModule.Login_sys(this.loginForm as any)
-          .then((res: any) => {
-            console.log(res)
-            if (String(res.code) === '1') {
-              this.$router.push('/')
-            } else {
-              // this.$message.error(res.msg)
-              this.loading = false
-            }
-          })
-          .catch(() => {
-            // this.$message.error('用户名或密码错误！')
-            this.loading = false
-          })
-      } else {
-        return false
-      }
-    })
-  }
+
 }
 </script>
 

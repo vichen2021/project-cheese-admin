@@ -66,8 +66,10 @@ const router = new Router({
           meta: {
             title: "工作台",
             icon: "dashboard",
-            affix: true
-          }
+            affix: true,
+            hidden: role != 'merchant'
+          },
+          
         },
         {
           path: "/statistics",
@@ -190,9 +192,9 @@ const router = new Router({
           component: () =>
             import(/* webpackChunkName: "shopTable" */ "@/views/rider/index.vue"),
           meta: {
-            title: "骑手管理",
+            title: "配送员列表",
             icon: "icon-order",
-            hidden: role === 'merchant'
+            hidden:false
           }
         },
         {

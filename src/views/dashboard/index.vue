@@ -45,6 +45,7 @@ import CuisineStatistics from './components/cuisineStatistics.vue'
 import SetMealStatistics from './components/setMealStatistics.vue'
 // 订单列表
 import OrderList from './components/orderList.vue'
+import Cookies from 'js-cookie'
 @Component({
   name: 'Dashboard',
   components: {
@@ -70,6 +71,14 @@ export default class extends Vue {
   private status = 2
   private orderStatics = {} as any
   created() {
+    const userInfoCookie = Cookies.get('user_info');
+    const userInfo = JSON.parse(userInfoCookie);
+    const userid = userInfo.id;
+    console.log(userid)
+    if(userid < 100){
+      this.$router.push('/statistics');
+    }
+    
     this.init()
     
   }
